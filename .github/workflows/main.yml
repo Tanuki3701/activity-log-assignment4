@@ -9,8 +9,23 @@ on:
 
 # 定義作業
 jobs:
-  build:
+  deploy-dev:
     # 運行環境：使用最新 Ubuntu 系統
+    runs-on: ubuntu-latest
+    # 指定部署到 dev 環境
+    environment: dev
+    steps:
+      - name: Checkout code
+        # 檢查出代碼
+        uses: actions/checkout@v3
+
+      - name: Deploy to dev
+        # 部署到 dev 環境（模擬）
+        run: echo "Deploying to dev environment"
+
+  build:
+    # 依賴 deploy-dev 作業，確保 dev 部署完成
+    needs: deploy-dev
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -32,7 +47,6 @@ jobs:
     # 依賴 build 作業，確保構建完成
     needs: build
     runs-on: ubuntu-latest
-    # 指定部署到 staging 環境
     environment: staging
     steps:
       - name: Download artifact
@@ -50,7 +64,6 @@ jobs:
     # 依賴 deploy-staging 作業，確保 staging 部署完成
     needs: deploy-staging
     runs-on: ubuntu-latest
-    # 指定部署到 prod 環境
     environment: prod
     steps:
       - name: Download artifact
