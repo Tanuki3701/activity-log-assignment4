@@ -1,0 +1,93 @@
+# 定義工作流程名稱
+name: CI/CD Pipeline
+
+# 觸發條件：當推送至 main 分支時執行
+on:
+  push:
+    branches:
+      - main
+
+# 定義作業
+jobs:
+  build:
+    # 運行環境：使用最新 Ubuntu 系統
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        # 檢查出代碼
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        # 設置 Node.js 環境，版本為 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        # 安裝專案依賴
+        run: npm install
+
+      - name: Build project
+        # 構建專案
+        run: npm run build
+
+      - name: Upload artifact
+        # 上傳構建產出作為工件
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifact
+          path: build/
+
+  deploy-dev:
+    # 依賴 build 作業，確保先完成構建
+    needs: build
+    runs-on: ubuntu-latest
+    # 指定部署到 dev 環境
+    environment: dev
+    steps:
+      - name: Download artifact
+        # 下載構建產出工件
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifact
+          path: build/
+
+      - name: Deploy to dev
+        # 部署到 dev 環境
+        run: echo "Deploying to dev environment"
+
+  deploy-staging:
+    # 依賴 deploy-dev 作業，確保 dev 部署完成
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    # 指定部署到 staging 環境
+    environment: staging
+    steps:
+      - name: Download artifact
+        # 下載構建產出工件
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifact
+          path: build/
+
+      - name: Deploy to staging
+        # 部署到 staging 環境
+        run: echo "Deploying to staging environment"
+
+  deploy-prod:
+    # 依賴 deploy-staging 作業，確保 staging 部署完成
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    # 指定部署到 prod 環境
+    environment: prod
+    steps:
+      - name: Download artifact
+        # 下載構建產出工件
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifact
+          path: build/
+
+      - name: Deploy to production
+        # 部署到 prod 環境
+        run: echo "Deploying to production environment"
