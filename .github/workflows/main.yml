@@ -17,48 +17,20 @@ jobs:
         # 檢查出代碼
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        # 設置 Node.js 環境，版本為 16
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-
-      - name: Install dependencies
-        # 安裝專案依賴
-        run: npm install
-
-      - name: Build project
-        # 構建專案
-        run: npm run build
+      - name: Simulate build
+        # 模擬構建過程（無實際構建腳本）
+        run: echo "Generating build artifact"
 
       - name: Upload artifact
-        # 上傳構建產出作為工件
+        # 上傳模擬的構建產出作為工件
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
-          path: build/
-
-  deploy-dev:
-    # 依賴 build 作業，確保先完成構建
-    needs: build
-    runs-on: ubuntu-latest
-    # 指定部署到 dev 環境
-    environment: dev
-    steps:
-      - name: Download artifact
-        # 下載構建產出工件
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
-          path: build/
-
-      - name: Deploy to dev
-        # 部署到 dev 環境
-        run: echo "Deploying to dev environment"
+          path: .
 
   deploy-staging:
-    # 依賴 deploy-dev 作業，確保 dev 部署完成
-    needs: deploy-dev
+    # 依賴 build 作業，確保構建完成
+    needs: build
     runs-on: ubuntu-latest
     # 指定部署到 staging 環境
     environment: staging
@@ -68,10 +40,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifact
-          path: build/
+          path: .
 
       - name: Deploy to staging
-        # 部署到 staging 環境
+        # 部署到 staging 環境（模擬）
         run: echo "Deploying to staging environment"
 
   deploy-prod:
@@ -86,8 +58,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifact
-          path: build/
+          path: .
 
       - name: Deploy to production
-        # 部署到 prod 環境
+        # 部署到 prod 環境（模擬）
         run: echo "Deploying to production environment"
+
+      - name: Simulate manual approval
+        # 模擬手動批准步驟
+        run: echo "Manual approval completed, proceeding to live deployment"
+
+      - name: Deploy to live
+        # 部署到實時環境（模擬）
+        run: echo "Deploying to live environment"
